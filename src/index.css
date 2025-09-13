@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Health & Fitness Tracker Design System - Modern Wellness Theme */
+
+/* Smooth Scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Adjust based on your header height */
+}
+
+@layer base {
+  :root {
+    /* Base colors - Clean and fresh */
+    --background: 220 20% 98%;
+    --foreground: 220 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    /* Primary - Energetic Blue */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 100% 65%;
+
+    /* Secondary - Wellness Green */
+    --secondary: 140 60% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted - Soft neutrals */
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 10% 55%;
+
+    /* Accent - Vibrant Energy */
+    --accent: 280 100% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success - Health Green */
+    --success: 140 70% 50%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Energy Orange */
+    --warning: 35 100% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 90%;
+    --input: 220 20% 95%;
+    --ring: 210 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Gradients - Fitness Energy */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-wellness: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-energy: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--warning)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+
+    /* Shadows - Modern depth */
+    --shadow-card: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+    --shadow-glow: 0 8px 32px -8px hsl(var(--primary) / 0.3);
+    --shadow-success: 0 4px 20px -4px hsl(var(--success) / 0.2);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark theme - Modern night mode */
+    --background: 220 25% 8%;
+    --foreground: 220 15% 92%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 220 15% 92%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 15% 92%;
+
+    --primary: 210 100% 60%;
+    --primary-foreground: 220 25% 8%;
+    --primary-glow: 210 100% 70%;
+
+    --secondary: 140 60% 50%;
+    --secondary-foreground: 220 25% 8%;
+
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 280 100% 70%;
+    --accent-foreground: 220 25% 8%;
+
+    --success: 140 70% 55%;
+    --success-foreground: 220 25% 8%;
+
+    --warning: 35 100% 60%;
+    --warning-foreground: 220 25% 8%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 220 25% 8%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 15%;
+    --ring: 210 100% 60%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-medium;
+  }
+
+  /* Custom utility classes */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-wellness {
+    background: var(--gradient-wellness);
+  }
+
+  .gradient-energy {
+    background: var(--gradient-energy);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}

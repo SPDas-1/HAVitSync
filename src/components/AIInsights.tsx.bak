@@ -1,0 +1,318 @@
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Brain, TrendingUp, Target, Lightbulb, RotateCcw } from "lucide-react";
+import { useTrackerStore } from "@/store/tracker-store";
+import { 
+  initGeminiAI, 
+  generateInsights, 
+  prepareUserDataForInsights, 
+  InsightResult,
+  isGeminiInitialized
+} from "@/integrations/gemini/client";
+import { GEMINI_API_KEY } from "@/config/env";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface AIInsightsProps {
+  onViewAll?: () => void;
+}
+
+// Initialize the Gemini AI when the component is first loaded
+let initialized = false;
+
+export const AIInsights: React.FC<AIInsightsProps> = ({ onViewAll }) => {
+  const store = useTrackerStore();
+  const [insights, setInsights] = useState<InsightResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [healthScore, setHealthScore] = useState<number>(0);
+
+  const fetchInsights = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Initialize Gemini if not already done
+      if (!initialized && !isGeminiInitialized()) {
+        initialized = initGeminiAI(GEMINI_API_KEY as string);
+        if (!initialized) {
+          throw new Error("Failed to initialize Gemini AI");
+        }
+      }
+      
+      // Prepare user data from the store
+      const userData = prepareUserDataForInsights(store);
+      
+      // Generate insights using Gemini
+      const newInsights = await generateInsights(userData);
+      setInsights(newInsights);
+      
+      // Calculate a health score based on available data
+      calculateHealthScore(userData);
+    } catch (err) {
+      console.error("Error fetching insights:", err);
+      setError("Failed to generate insights. Please try again later.");
+      
+      // Use fallback insights if available
+      if (insights.length === 0) {
+        setInsights([
+          {
+            title: "Smart Recommendations",
+            description: "Your study performance peaks between 9-11 AM. Consider scheduling complex topics during this time.",
+            confidence: "95%",
+            type: "recommendation"
+          },
+          {
+            title: "Progress Trend",
+            description: "Your workout consistency has improved 40% this month. Keep up the momentum!",
+            confidence: "89%",
+            type: "trend"
+          },
+          {
+            title: "Goal Adjustment",
+            description: "Based on your sleep data, consider moving your bedtime 30 minutes earlier for optimal recovery.",
+            confidence: "92%",
+            type: "goal"
+          }
+        ]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const calculateHealthScore = (userData: any) => {
+    // Simple algorithm to calculate health score based on available data
+    let score = 75; // Base score
+    
+    const { studyData, workoutData, mealData, sleepData } = userData;
+    
+    // Add points for recent activity
+    if (studyData.length) score += 5;
+    if (workoutData.length > 3) score += 7;
+    if (mealData.length > 5) score += 5;
+    if (sleepData.length) {
+      // Bonus for good sleep habits
+      const recentSleep = sleepData.slice(-7);
+      const avgSleepQuality = recentSleep.reduce((acc: number, entry: any) => acc + entry.sleepQuality, 0) / recentSleep.length;
+      score += avgSleepQuality > 3 ? 8 : 4;
+    }
+    
+    // Cap score at 100
+    score = Math.min(100, score);
+    setHealthScore(score);
+  };
+  
+  // Generate insights when the component mounts or when store data changes
+  useEffect(() => {
+    fetchInsights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    store.studyEntries.length, 
+    store.workoutEntries.length, 
+    store.mealEntries.length,
+    store.sleepEntries.length
+  ]);
+  
+  // Get appropriate icon based on insight type
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'recommendation':
+        return Brain;
+      case 'trend':
+        return TrendingUp;
+      case 'goal':
+        return Target;
+      default:
+        return Lightbulb;
+    }
+  };
+  
+  // Get appropriate color based on insight type
+  const getInsightColor = (type: string) => {
+    switch (type) {
+      case 'recommendation':
+        return 'text-primary';
+      case 'trend':
+        return 'text-secondary';
+      case 'goal':
+        return 'text-accent';
+      default:
+        return 'text-muted-foreground';
+    }
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>AI Health Insights</CardTitle>
+          <CardDescription>Personalized recommendations based on your data</CardDescription>
+        </div>
+        <div className="flex items-center space-x-2">
+          {!loading && (
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              onClick={fetchInsights} 
+              aria-label="Refresh insights"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onViewAll} 
+            className="text-sm font-medium"
+          >
+            View all
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">Health Score</p>
+            <p className="text-2xl font-bold">{healthScore}/100</p>
+          </div>
+          <div className="h-12 w-12 rounded-full border-4 border-primary flex items-center justify-center">
+            <span className="text-sm font-bold">{healthScore}%</span>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-start space-x-4">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="p-4 rounded-lg bg-muted">
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button onClick={fetchInsights} variant="outline" size="sm" className="mt-2">
+              Try again
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {insights.map((insight, i) => (
+              <div key={i} className="flex items-start space-x-4">
+                <div className={`rounded-full p-2 bg-muted ${getInsightColor(insight.type)}`}>
+                  {React.createElement(getInsightIcon(insight.type), { className: "h-5 w-5" })}
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">{insight.title}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {insight.confidence}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{insight.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+  return (
+    <section id="insights" className="py-20">
+      <div className="container mx-auto px-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 gradient-energy rounded-lg flex items-center justify-center">
+                  <Lightbulb className="h-6 w-6 text-white" />
+                </div>
+                <h2 className="text-4xl font-bold text-foreground">
+                  AI-Powered
+                  <span className="gradient-energy bg-clip-text text-transparent"> Insights</span>
+                </h2>
+              </div>
+              <p className="text-xl text-muted-foreground">
+                Get personalized recommendations and insights based on your health data. 
+                Our AI analyzes patterns to help you optimize your wellness journey.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {insights.map((insight, index) => (
+                <Card key={index} className="border-l-4 border-l-primary shadow-card hover:shadow-glow transition-smooth">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <insight.icon className={`h-5 w-5 ${insight.color}`} />
+                      <CardTitle className="text-lg">{insight.title}</CardTitle>
+                      <span className="text-sm bg-success/10 text-success px-2 py-1 rounded-full">
+                        {insight.confidence} confidence
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-base">
+                      {insight.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Button variant="accent" size="lg" className="w-full sm:w-auto" onClick={onViewAll}>
+              View All Insights
+            </Button>
+          </div>
+
+          <div className="relative">
+            <Card className="shadow-glow border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Brain className="h-5 w-5 text-primary" />
+                  <span>Today's AI Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Overall Health Score</span>
+                    <span className="text-2xl font-bold text-success">87/100</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="bg-success h-2 rounded-full" style={{ width: "87%" }}></div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-primary/10 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">8.2</div>
+                    <div className="text-sm text-muted-foreground">Sleep Quality</div>
+                  </div>
+                  <div className="text-center p-4 bg-secondary/10 rounded-lg">
+                    <div className="text-2xl font-bold text-secondary">94%</div>
+                    <div className="text-sm text-muted-foreground">Nutrition Goal</div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-warning/10 rounded-lg border-l-4 border-warning">
+                  <div className="text-sm font-medium text-warning">Recommendation</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Consider a 10-minute meditation session to improve focus for your next study block.
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
