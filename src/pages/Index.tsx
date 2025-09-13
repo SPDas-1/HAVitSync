@@ -6,6 +6,7 @@ import { AIInsights } from "@/components/AIInsights";
 import { StatsSummary } from "@/components/StatsSummary";
 import { UpcomingFeatures } from "@/components/UpcomingFeatures";
 import { LoginModal } from "@/components/LoginModal";
+import { Footer } from "@/components/Footer";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -76,6 +77,7 @@ const Index = () => {
           </div>
         </section>
       </main>
+      <Footer />
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
     </div>
   );

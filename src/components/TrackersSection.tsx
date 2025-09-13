@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { DynamicTrackerCard } from "@/components/DynamicTrackerCard";
 import { EntryForm } from "@/components/TrackerEntryForm";
-import { StatsSummary } from "@/components/StatsSummary";
 import studyIcon from "@/assets/study-icon.jpg";
 import workoutIcon from "@/assets/workout-icon.jpg";
 import mealIcon from "@/assets/meal-icon.jpg";
@@ -70,9 +69,6 @@ export const TrackersSection = () => {
             />
           ))}
         </div>
-        
-        {/* Stats Summary based on actual data */}
-        <StatsSummary />
       </div>
       
       {/* Entry Form Dialog */}
