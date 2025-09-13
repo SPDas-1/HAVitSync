@@ -10,7 +10,7 @@ import {
   InsightResult,
   isGeminiInitialized
 } from "@/integrations/gemini/client";
-import { GEMINI_API_KEY } from "@/config/env";
+import { GEMINI_API_KEY, DEMO_MODE } from "@/config/env";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AIInsightsProps {
@@ -26,15 +26,26 @@ export const AIInsights: React.FC<AIInsightsProps> = ({ onViewAll }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [healthScore, setHealthScore] = useState<number>(0);
+  const [demoMode, setDemoMode] = useState(DEMO_MODE || !GEMINI_API_KEY);
 
   const fetchInsights = async () => {
     setLoading(true);
     setError(null);
     
     try {
+      // Check if in demo mode or if API key is missing
+      if (demoMode || !GEMINI_API_KEY) {
+        console.log("Running in demo mode - using fallback insights");
+        // Use fallback insights
+        setInsights(getFallbackInsightsForDemo());
+        calculateHealthScore(prepareUserDataForInsights(store));
+        setLoading(false);
+        return;
+      }
+      
       // Initialize Gemini if not already done
       if (!initialized && !isGeminiInitialized()) {
-        initialized = initGeminiAI(GEMINI_API_KEY as string);
+        initialized = initGeminiAI(GEMINI_API_KEY);
         if (!initialized) {
           throw new Error("Failed to initialize Gemini AI");
         }
@@ -168,6 +179,30 @@ export const AIInsights: React.FC<AIInsightsProps> = ({ onViewAll }) => {
     } else {
       return 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30';
     }
+  };
+  
+  // Fallback insights for demo mode
+  const getFallbackInsightsForDemo = (): InsightResult[] => {
+    return [
+      {
+        title: "Smart Study Recommendations",
+        description: "Your study performance peaks between 9-11 AM. Consider scheduling complex topics during this time.",
+        confidence: "95%",
+        type: "recommendation"
+      },
+      {
+        title: "Workout Progress Trend",
+        description: "Consistent workouts, even short ones, lead to better long-term results than occasional intense sessions.",
+        confidence: "89%",
+        type: "trend"
+      },
+      {
+        title: "Sleep Goal Adjustment",
+        description: "Based on your sleep patterns, consider moving your bedtime 30 minutes earlier for optimal recovery.",
+        confidence: "92%",
+        type: "goal"
+      }
+    ];
   };
 
   return (
