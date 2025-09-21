@@ -3,7 +3,7 @@
 
 **HAVitSync** is a modern, AI-powered health and activity tracker that helps you monitor your study, workout, meal, and sleep habits—all in one beautiful dashboard. Get personalized insights, set goals, and visualize your progress with ease.
 
-![HAVitSync Dashboard Screenshot](public/placeholder.svg)
+<!--  ![HAVitSync Dashboard Screenshot](public/placeholder.svg)  -->
 
 ## 🚀 Features
 
