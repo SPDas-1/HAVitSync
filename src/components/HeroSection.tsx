@@ -30,8 +30,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Track. Transform.
-                <span className="gradient-wellness bg-clip-text text-transparent"> Triumph. </span>
+                Optimise your time -
+                <span className="gradient-wellness bg-clip-text text-transparent"> elevate your life</span>
                
               </h1>
               <p className="text-xl text-muted-foreground leading-relaxed">
